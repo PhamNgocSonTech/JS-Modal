@@ -3,18 +3,17 @@ const $$ = document.querySelectorAll.bind(document);
 
 function Modal() {
   this.openModal = (options = {}) => {
-    const { templateId } = options;
+    const { templateId, allowBackdropClose = true } = options;
     const template = $(`#${templateId}`);
 
     if (!template) {
-      console.error(`#${templateId} does not exists`);
-      return;
+      backdrop.classList.add("show");
     }
 
-    const content = template.content.cloneNode(true);
-    console.log(content);
+    // disable scrolling
+    document.body.classList.add("no-scroll");
 
-    console.log(templateId.content);
+    const content = template.content.cloneNode(true);
 
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
@@ -41,21 +40,29 @@ function Modal() {
 
     // attach event listners
     closeBtn.onclick = () => this.closeModal(backdrop);
-    backdrop.onclick = (e) => {
-      if (e.target === backdrop) {
-        this.closeModal(backdrop);
-      }
-    };
+
+    if (allowBackdropClose) {
+      backdrop.onclick = (e) => {
+        if (e.target === backdrop) {
+          this.closeModal(backdrop);
+        }
+      };
+    }
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         this.closeModal(backdrop);
       }
     });
+
+    return backdrop;
   };
   this.closeModal = (modalElement) => {
     modalElement.classList.remove("show");
     modalElement.ontransitionend = () => {
       modalElement.remove();
+      // enable scrolling
+      document.body.classList.remove("no-scroll");
     };
   };
 }
@@ -69,9 +76,21 @@ $("#open-modal-1").onclick = () => {
 };
 
 $("#open-modal-2").onclick = () => {
-  modal.openModal({
+  const modalElement = modal.openModal({
     templateId: "modal-2",
+    allowBackdropClose: false,
   });
+  const form = modalElement.querySelector("#login-form");
+  if (form) {
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const formData = {
+        email: $("#email").value.trim(),
+        password: $("#password").value.trim(),
+      };
+      console.log(formData);
+    };
+  }
 };
 
 $("#open-modal-3").onclick = () => {
