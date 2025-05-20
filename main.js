@@ -12,6 +12,7 @@ function Modal() {
 
     // disable scrolling
     document.body.classList.add("no-scroll");
+    document.body.style.paddingRight = getScrollbarWidth + "";
 
     const content = template.content.cloneNode(true);
 
@@ -63,6 +64,7 @@ function Modal() {
       modalElement.remove();
       // enable scrolling
       document.body.classList.remove("no-scroll");
+      document.body.style.paddingRight = "";
     };
   };
 }
@@ -92,6 +94,21 @@ $("#open-modal-2").onclick = () => {
     };
   }
 };
+
+function getScrollbarWidth() {
+  const div = document.createElement("div");
+  Object.assign(div.style, {
+    overflow: "scroll",
+    position: "absolute",
+    top: "-9999px",
+  });
+  document.body.appendChild(div);
+  const scrollbarWidth = div.offsetWidth - div.clientWidth;
+
+  document.body.removeChild(div);
+
+  return scrollbarWidth;
+}
 
 $("#open-modal-3").onclick = () => {
   modal.openModal("<h1>Hello Modal 3</h1>");
